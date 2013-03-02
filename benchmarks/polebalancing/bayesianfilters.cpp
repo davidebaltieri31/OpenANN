@@ -66,8 +66,8 @@ Result benchmarkSingleRun(OpenANN::Environment& environment, OpenANN::Agent& age
 }
 
 Results benchmarkConfiguration(bool doublePole, bool fullyObservable,
-    bool alphaBetaFilter, bool doubleExponentialSmoothing, int parameters,
-    int runs, fpt sigma0, fpt noise)
+    bool alphaBetaFilter, bool doubleExponentialSmoothing,
+    bool learnDESParameters, int parameters, int runs, fpt sigma0, fpt noise)
 {
   OpenANN::Environment* env;
   if(doublePole)
@@ -84,10 +84,11 @@ Results benchmarkConfiguration(bool doublePole, bool fullyObservable,
   for(int run = 0; run < runs; run++)
   {
     NeuroEvolutionAgent agent(0, false, "linear", parameters > 0, parameters,
-        fullyObservable, alphaBetaFilter, doubleExponentialSmoothing);
+        fullyObservable, alphaBetaFilter, doubleExponentialSmoothing,
+        learnDESParameters);
     agent.setSigma0(sigma0);
     Result result = benchmarkSingleRun(*env, agent);
-    if(run % 10 == 0)
+    if(run % 10 == 9)
       progressLogger << ".";
     if(!result.success)
       results.failures++;
@@ -136,30 +137,48 @@ int main(int argc, char** argv)
 #endif
 
   OpenANN::Logger configLogger(OpenANN::Logger::CONSOLE);
-  int runs = 50;
+  int runs = 10;
 
-  configLogger << "SPB, POMDP (ABF), uncompressed\n";
-  Results results = benchmarkConfiguration(false, false, true, false, -1, runs, 10.0, 0);
-  printResults(results);
-  configLogger << "SPB, POMDP (ABF), compressed (3)\n";
-  results = benchmarkConfiguration(false, false, true, false, 3, runs, 10.0, 0);
-  printResults(results);
-  configLogger << "DPB, POMDP (ABF), uncompressed\n";
-  results = benchmarkConfiguration(true, false, true, false, -1, runs, 10.0, 0);
-  printResults(results);
-  configLogger << "DPB, POMDP (ABF), compressed (5)\n";
-  results = benchmarkConfiguration(true, false, true, false, 5, runs, 10.0, 0);
-  printResults(results);
-  configLogger << "SPB, POMDP (DES), uncompressed\n";
-  results = benchmarkConfiguration(false, false, false, true, -1, runs, 10.0, 0);
-  printResults(results);
-  configLogger << "SPB, POMDP (DES), compressed (3)\n";
-  results = benchmarkConfiguration(false, false, false, true, 3, runs, 10.0, 0);
-  printResults(results);
-  configLogger << "DPB, POMDP (DES), uncompressed\n";
-  results = benchmarkConfiguration(true, false, false, true, -1, runs, 10.0, 0);
-  printResults(results);
-  configLogger << "DPB, POMDP (DES), compressed (5)\n";
-  results = benchmarkConfiguration(true, false, false, true, 5, runs, 10.0, 0);
-  printResults(results);
+  Results results;
+  for(fpt noiseLevel = 0.0; noiseLevel <= 3.0; noiseLevel += 0.5)
+  {
+    fpt noise = noiseLevel / 1024;
+    configLogger << "=== Noise: " << noise << " ===\n";
+    configLogger << "SPB, POMDP (ABF), uncompressed\n";
+    Results results = benchmarkConfiguration(false, false, true, false, false, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "SPB, POMDP (DES), uncompressed\n";
+    results = benchmarkConfiguration(false, false, false, true, false, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "SPB, POMDP (DESO), uncompressed\n";
+    results = benchmarkConfiguration(false, false, false, true, true, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (DES), uncompressed\n";
+    results = benchmarkConfiguration(true, false, false, true, false, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (ABF), uncompressed\n";
+    results = benchmarkConfiguration(true, false, true, false, false, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (DESO), uncompressed\n";
+    results = benchmarkConfiguration(true, false, false, true, true, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "SPB, POMDP (ABF), compressed (3)\n";
+    results = benchmarkConfiguration(false, false, true, false, false, 3, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "SPB, POMDP (DES), compressed (3)\n";
+    results = benchmarkConfiguration(false, false, false, true, false, 3, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "SPB, POMDP (DESO), compressed (3)\n";
+    results = benchmarkConfiguration(false, false, false, true, true, 3, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (ABF), compressed (5)\n";
+    results = benchmarkConfiguration(true, false, true, false, false, 5, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (DES), compressed (5)\n";
+    results = benchmarkConfiguration(true, false, false, true, false, 5, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (DESO), compressed (5)\n";
+    results = benchmarkConfiguration(true, false, false, true, true, 5, runs, 10.0, noise);
+    printResults(results);
+  }
 }

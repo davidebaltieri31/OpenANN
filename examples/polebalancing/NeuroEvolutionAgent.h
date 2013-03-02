@@ -27,6 +27,8 @@ class NeuroEvolutionAgent : public Agent, public Optimizable
   bool alphaBetaFilter;
   //! Use double exponential smoothing to estimate missing state variables?
   bool doubleExponentialSmoothing;
+  //! Learn parameters of double exponential smoothing
+  bool learnDESParameters;
   //! Use Gruau's fitness function.
   bool gruauFitness;
 
@@ -43,7 +45,8 @@ public:
                       bool compress = false, int m = 0,
                       bool fullyObservable = true,
                       bool alphaBetaFilter = false,
-                      bool doubleExponentialSmoothing = false);
+                      bool doubleExponentialSmoothing = false,
+                      bool learnDESParameters = false);
   ~NeuroEvolutionAgent();
   virtual void abandoneIn(Environment& environment);
   virtual void chooseAction();

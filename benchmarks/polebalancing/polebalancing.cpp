@@ -190,7 +190,7 @@ Results benchmarkConfiguration(bool doublePole, bool fullyObservable,
         fullyObservable, alphaBetaFilter, doubleExponentialSmoothing);
     agent.setSigma0(sigma0);
     Result result = benchmarkSingleRun(*env, agent);
-    if(run % 10 == 0)
+    if(run % 10 == 9)
       progressLogger << ".";
     if(!result.success)
       results.failures++;

@@ -6,11 +6,12 @@ NeuroEvolutionAgent::NeuroEvolutionAgent(int h, bool b, const std::string a,
                                          bool compress, int m,
                                          bool fullyObservable,
                                          bool alphaBetaFilter,
-                                         bool doubleExponentialSmoothing)
+                                         bool doubleExponentialSmoothing,
+                                         bool learnDESParameters)
   : h(h), b(b), a(a), compress(compress), m(m),
     fullyObservable(fullyObservable), alphaBetaFilter(alphaBetaFilter),
     doubleExponentialSmoothing(doubleExponentialSmoothing),
-    gruauFitness(false)
+    learnDESParameters(learnDESParameters), gruauFitness(false)
 {
 }
 
@@ -158,12 +159,30 @@ void NeuroEvolutionAgent::chooseOptimalAction()
 
 Vt NeuroEvolutionAgent::currentParameters()
 {
-  return policy.currentParameters();
+  Vt parameters(dimension());
+  if(learnDESParameters)
+  {
+    int i = 0;
+    Vt policyParameters = policy.currentParameters();
+    for(int j = 0; j < policy.dimension(); j++, i++)
+      parameters(i) = policyParameters(j);
+    for(int j = 0; j < des.size(); j++)
+    {
+      Vt desParameters = des[j].getParameters();
+      for(int k = 0; k < 2; k++, i++)
+        parameters(i) = desParameters(k);
+    }
+    return parameters;
+  }
+  else
+  {
+    return policy.currentParameters();
+  }
 }
 
 unsigned int NeuroEvolutionAgent::dimension()
 {
-  return policy.dimension();
+  return policy.dimension() + (learnDESParameters ? des.size()*2 : 0);
 }
 
 fpt NeuroEvolutionAgent::error()
@@ -187,6 +206,9 @@ Mt NeuroEvolutionAgent::hessian()
 void NeuroEvolutionAgent::initialize()
 {
   policy.initialize();
+  if(learnDESParameters)
+    for(int i = 0; i < des.size(); i++)
+      des[i].initialize();
 }
 
 bool NeuroEvolutionAgent::providesGradient()
@@ -206,7 +228,25 @@ bool NeuroEvolutionAgent::providesInitialization()
 
 void NeuroEvolutionAgent::setParameters(const Vt& parameters)
 {
-  policy.setParameters(parameters);
+  if(learnDESParameters)
+  {
+    int i = 0;
+    Vt policyParameters(policy.dimension());
+    for(int j = 0; j < policy.dimension(); j++, i++)
+      policyParameters(j) = parameters(i);
+    policy.setParameters(policyParameters);
+    for(int j = 0; j < des.size(); j++)
+    {
+      Vt desParameters(2);
+      for(int k = 0; k < 2; k++, i++)
+        desParameters(k) = parameters(i);
+      des[j].setParameters(desParameters);
+    }
+  }
+  else
+  {
+    policy.setParameters(parameters);
+  }
 }
 
 void NeuroEvolutionAgent::setSigma0(fpt sigma0)

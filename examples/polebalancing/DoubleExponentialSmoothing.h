@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 #include <io/Logger.h>
+#include <Random.h>
 
 class DoubleExponentialSmoothing
 {
@@ -63,5 +64,33 @@ public:
     Vt out(2);
     out << sn + bn, bn; // Forcast
     return out;
+  }
+
+  void initialize()
+  {
+    OpenANN::RandomNumberGenerator rng;
+    alpha = rng.generate<fpt>(0, 1);
+    beta = rng.generate<fpt>(0, 1);
+  }
+
+  void setParameters(const Vt& parameters)
+  {
+    alpha = parameters(0);
+    beta = parameters(1);
+    if(alpha > 1.0)
+      alpha = 1.0;
+    if(alpha < 0.1)
+      alpha = 0.1;
+    if(beta > 1.0)
+      beta = 1.0;
+    if(beta < 0.1)
+      beta = 0.1;
+  }
+
+  Vt getParameters()
+  {
+    Vt parameters(2);
+    parameters << alpha, beta;
+    return parameters;
   }
 };
