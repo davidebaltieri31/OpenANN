@@ -262,6 +262,6 @@ void DoublePoleBalancing::normalizeState()
   {
     OpenANN::RandomNumberGenerator rng;
     for(int i = 0; i < normalizedState.rows(); i++)
-      normalizedState(i) = rng.sampleNormalDistribution<fpt>()*noiseStdDev;
+      normalizedState(i) += rng.sampleNormalDistribution<fpt>()*noiseStdDev;
   }
 }

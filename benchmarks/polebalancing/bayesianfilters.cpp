@@ -110,6 +110,8 @@ Results benchmarkConfiguration(bool doublePole, bool fullyObservable,
   {
     episodes[run] -= results.mean;
     episodes[run] *= episodes[run];
+    steps[run] -= results.meanSteps;
+    steps[run] *= steps[run];
   }
   results.stdDev = std::sqrt(std::accumulate(episodes.begin(), episodes.end(), (fpt) 0) / (fpt) runs);
   results.stdDevSteps = std::sqrt(std::accumulate(steps.begin(), steps.end(), (fpt) 0) / (fpt) runs);
@@ -137,21 +139,27 @@ int main(int argc, char** argv)
 #endif
 
   OpenANN::Logger configLogger(OpenANN::Logger::CONSOLE);
-  int runs = 10;
+  int runs = 50;
 
   Results results;
   for(fpt noiseLevel = 0.0; noiseLevel <= 3.0; noiseLevel += 0.5)
   {
     fpt noise = noiseLevel / 1024;
     configLogger << "=== Noise: " << noise << " ===\n";
+    configLogger << "SPB, POMDP (Diff), uncompressed\n";
+    results = benchmarkConfiguration(false, false, false, false, false, -1, runs, 10.0, noise);
+    printResults(results);
     configLogger << "SPB, POMDP (ABF), uncompressed\n";
-    Results results = benchmarkConfiguration(false, false, true, false, false, -1, runs, 10.0, noise);
+    results = benchmarkConfiguration(false, false, true, false, false, -1, runs, 10.0, noise);
     printResults(results);
     configLogger << "SPB, POMDP (DES), uncompressed\n";
     results = benchmarkConfiguration(false, false, false, true, false, -1, runs, 10.0, noise);
     printResults(results);
     configLogger << "SPB, POMDP (DESO), uncompressed\n";
     results = benchmarkConfiguration(false, false, false, true, true, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (Diff), uncompressed\n";
+    results = benchmarkConfiguration(true, false, false, false, false, -1, runs, 10.0, noise);
     printResults(results);
     configLogger << "DPB, POMDP (DES), uncompressed\n";
     results = benchmarkConfiguration(true, false, false, true, false, -1, runs, 10.0, noise);
