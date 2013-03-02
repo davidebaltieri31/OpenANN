@@ -8,8 +8,8 @@ Compressed::Compressed(OutputInfo info, int J, int M, bool bias,
                        ActivationFunction act, const std::string& compression,
                        fpt stdDev, fpt dropoutProbability)
   : I(info.outputs()), J(J), M(M), bias(bias), act(act), stdDev(stdDev),
-    dropoutProbability(dropoutProbability), W(J, I), Wd(J, I), phi(M, I),
-    alpha(J, M), alphad(J, M), x(0), a(J), y(J+bias), yd(J), deltas(J), e(I)
+    dropoutProbability(dropoutProbability), W(J, I),
+    Wd(J, I), phi(M, I), alpha(J, M), alphad(J, M), x(0), a(J), y(J+bias), yd(J), deltas(J), e(I)
 {
   CompressionMatrixFactory::Transformation transformation =
       CompressionMatrixFactory::SPARSE_RANDOM;
@@ -21,7 +21,9 @@ Compressed::Compressed(OutputInfo info, int J, int M, bool bias,
     transformation = CompressionMatrixFactory::AVERAGE;
   else if(compression == std::string("edge"))
     transformation = CompressionMatrixFactory::EDGE;
-  CompressionMatrixFactory cmf(I, M, transformation);
+  // For compatibility reasons, we create a compression matrix that assumes
+  // that there is a bias.
+  CompressionMatrixFactory cmf(I+1-info.bias, M, transformation);
   cmf.createCompressionMatrix(phi);
 }
 
@@ -62,7 +64,7 @@ void Compressed::initializeParameters()
 
 void Compressed::updatedParameters()
 {
-  W = alpha * phi;
+  W = alpha * phi.block(0, 0, M, I);
 }
 
 void Compressed::forwardPropagate(Vt* x, Vt*& y, bool dropout)
@@ -99,7 +101,7 @@ void Compressed::backpropagate(Vt* ein, Vt*& eout)
     deltas(j) = yd(j) * (*ein)(j);
   // Weight derivatives
   Wd = deltas * x->transpose();
-  alphad = Wd * phi.transpose();
+  alphad = Wd * phi.block(0, 0, M, I).transpose();
   // Prepare error signals for previous layer
   e = W.transpose() * deltas;
   eout = &e;

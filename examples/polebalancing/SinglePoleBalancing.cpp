@@ -1,9 +1,11 @@
 #include "SinglePoleBalancing.h"
 #include <AssertionMacros.h>
+#include <Random.h>
 #include <cmath>
 
-SinglePoleBalancing::SinglePoleBalancing(bool fullyObservable)
+SinglePoleBalancing::SinglePoleBalancing(bool fullyObservable, fpt noiseStdDev)
   : fullyObservable(fullyObservable),
+    noiseStdDev(noiseStdDev),
     gravity(-9.8),
     cartMass(1.0),
     tau(0.02),
@@ -145,6 +147,12 @@ void SinglePoleBalancing::stateTransition(const Action& action)
     s = rk4(s, force, der);
   }
   state = s;
+  if(noiseStdDev > 0.0)
+  {
+    OpenANN::RandomNumberGenerator rng;
+    for(int i = 0; i < s.rows(); i++)
+      state(i) += rng.sampleNormalDistribution<fpt>() * noiseStdDev;
+  }
   normalizeState();
 }
 

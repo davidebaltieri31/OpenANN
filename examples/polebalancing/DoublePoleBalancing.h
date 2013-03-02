@@ -49,6 +49,11 @@ class DoublePoleBalancing : public OpenANN::Environment
   int maxSteps;
   //! Maximal applicable force.
   double maxForce;
+  /**
+   * Standard deviation of the Gaussian measurement noise that is added to
+   * each component of the state
+   */
+  double noiseStdDev;
 
   fpt massLength1;
   fpt massLength2;
@@ -65,7 +70,7 @@ class DoublePoleBalancing : public OpenANN::Environment
   Environment::State normalizedState;
   int step;
 public:
-  DoublePoleBalancing(bool fullyObservable = true);
+  DoublePoleBalancing(bool fullyObservable = true, fpt noiseStdDev = 0.0);
   virtual bool actionSpaceContinuous() const;
   virtual int actionSpaceDimension() const;
   virtual int actionSpaceElements() const;

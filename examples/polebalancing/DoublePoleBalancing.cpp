@@ -1,10 +1,12 @@
 #include "DoublePoleBalancing.h"
 #include <AssertionMacros.h>
 #include <EigenWrapper.h>
+#include <Random.h>
 #include <cmath>
 
-DoublePoleBalancing::DoublePoleBalancing(bool fullyObservable)
+DoublePoleBalancing::DoublePoleBalancing(bool fullyObservable, fpt noiseStdDev)
   : fullyObservable(fullyObservable),
+    noiseStdDev(noiseStdDev),
     gravity(-9.8),
     cartMass(1.0),
     tau(0.02),
@@ -160,6 +162,12 @@ void DoublePoleBalancing::stateTransition(const Action& action)
     s = rk4(s, force, der);
   }
   state = s;
+  if(noiseStdDev > 0.0)
+  {
+    OpenANN::RandomNumberGenerator rng;
+    for(int i = 0; i < s.rows(); i++)
+      state(i) += rng.sampleNormalDistribution<fpt>() * noiseStdDev;
+  }
   normalizeState();
 }
 
