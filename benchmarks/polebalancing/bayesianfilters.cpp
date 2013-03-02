@@ -14,6 +14,10 @@
  *
  * This benchmark is based on the example \ref PB.
  *
+ * Open question:
+ *
+ *  - Is the noise system inherent noise or just measurement noise?
+ *
  */
 
 struct Result
@@ -161,11 +165,11 @@ int main(int argc, char** argv)
     configLogger << "DPB, POMDP (Diff), uncompressed\n";
     results = benchmarkConfiguration(true, false, false, false, false, -1, runs, 10.0, noise);
     printResults(results);
-    configLogger << "DPB, POMDP (DES), uncompressed\n";
-    results = benchmarkConfiguration(true, false, false, true, false, -1, runs, 10.0, noise);
-    printResults(results);
     configLogger << "DPB, POMDP (ABF), uncompressed\n";
     results = benchmarkConfiguration(true, false, true, false, false, -1, runs, 10.0, noise);
+    printResults(results);
+    configLogger << "DPB, POMDP (DES), uncompressed\n";
+    results = benchmarkConfiguration(true, false, false, true, false, -1, runs, 10.0, noise);
     printResults(results);
     configLogger << "DPB, POMDP (DESO), uncompressed\n";
     results = benchmarkConfiguration(true, false, false, true, true, -1, runs, 10.0, noise);

@@ -162,6 +162,12 @@ void DoublePoleBalancing::stateTransition(const Action& action)
     s = rk4(s, force, der);
   }
   state = s;
+  if(noiseStdDev > 0.0)
+  {
+    OpenANN::RandomNumberGenerator rng;
+    for(int i = 0; i < state.rows(); i++)
+      state(i) += rng.sampleNormalDistribution<fpt>() * noiseStdDev / stateNormalizationVector(i);
+  }
   normalizeState();
 }
 
@@ -257,11 +263,5 @@ void DoublePoleBalancing::normalizeState()
     normalizedState(0) = state(0) * stateNormalizationVector(0);
     normalizedState(1) = state(2) * stateNormalizationVector(2);
     normalizedState(2) = state(4) * stateNormalizationVector(4);
-  }
-  if(noiseStdDev > 0.0)
-  {
-    OpenANN::RandomNumberGenerator rng;
-    for(int i = 0; i < normalizedState.rows(); i++)
-      normalizedState(i) += rng.sampleNormalDistribution<fpt>()*noiseStdDev;
   }
 }
