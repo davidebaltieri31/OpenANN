@@ -141,7 +141,7 @@ void NeuroEvolutionAgent::chooseOptimalAction()
       for(; i < state.rows(); i++)
         input(i) = state(i);
       for(int j = 0; j < state.rows(); i++, j++)
-        input(i) = lastState(j);
+        input(i) = (state(j) - lastState(j)) / environment->deltaT();
       lastState = state;
     }
   }
