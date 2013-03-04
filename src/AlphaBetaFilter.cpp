@@ -47,6 +47,8 @@ void AlphaBetaFilter::updatedParameters()
   for(int i = 0; i < I; i++)
   {
     gamma(i) = fabs(gamma(i));
+    if(gamma(i) > 10.0)
+      gamma(i) = 10.0;
     const fpt r = (4.0 + gamma(i) - sqrt(8.0 * gamma(i) + gamma(i) * gamma(i))) / 4.0;
     alpha(i) = 1.0 - r*r;
     const fpt rr = 1.0 - r;
@@ -74,9 +76,11 @@ void AlphaBetaFilter::forwardPropagate(Vt* x, Vt*& y, bool dropout)
 
   for(int i = 0, j = 0; i < I; i++, j+=2)
   {
-    const fpt diff = (*x)(i) - this->y(j);
-    this->y(j+1) += beta(i) / deltaT * diff;
-    this->y(j) += alpha(i) * diff + deltaT * this->y(j+1);
+    const fpt posEstimated = this->y(j) + deltaT * this->y(j+1);
+    const fpt velEstimated = this->y(j+1);
+    const fpt r = (*x)(i) - posEstimated;
+    this->y(j) = posEstimated + alpha(i) * r;
+    this->y(j+1) = velEstimated + beta(i) / deltaT * r;
   }
 
   y = &(this->y);
