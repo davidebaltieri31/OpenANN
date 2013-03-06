@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <io/Logger.h>
 #include <Random.h>
 
 class DoubleExponentialSmoothing

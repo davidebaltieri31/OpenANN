@@ -46,9 +46,10 @@ void AlphaBetaFilter::updatedParameters()
 {
   for(int i = 0; i < I; i++)
   {
-    gamma(i) = fabs(gamma(i));
     if(gamma(i) > 10.0)
       gamma(i) = 10.0;
+    if(gamma(i) < 0.1)
+      gamma(i) = 0.1;
     const fpt r = (4.0 + gamma(i) - sqrt(8.0 * gamma(i) + gamma(i) * gamma(i))) / 4.0;
     alpha(i) = 1.0 - r*r;
     const fpt rr = 1.0 - r;
