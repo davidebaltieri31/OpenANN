@@ -44,7 +44,12 @@ public:
     xn = in;
     sc = sn;
     bc = bn;
-    if(t == 0)
+    if(t > 1)
+    {
+      sn = alpha * xn + (1.0-alpha)*(sc + bc);
+      bn = beta * (sn - sc) + (1.0-beta) * bc;
+    }
+    else if(t == 0)
     {
       sn = in;
       bn = 0.0;
@@ -54,14 +59,9 @@ public:
       sn = xc;
       bn = xn - xc;
     }
-    else
-    {
-      sn = alpha * xn + (1.0-alpha)*(sc + bc);
-      bn = beta * (sn - sc) + (1.0-beta) * bc;
-    }
     t++;
     Vt out(2);
-    out << sn + bn, bn; // Forcast
+    out << sn + bn, bn; // Forecast
     return out;
   }
 
