@@ -221,17 +221,18 @@ OpenANN::Environment::State SinglePoleBalancing::rk4(const State& s, fpt force, 
 
 void SinglePoleBalancing::normalizeState()
 {
-  if(fullyObservable)
-    normalizedState = state.cwiseProduct(stateNormalizationVector);
-  else
-  {
-    normalizedState(0) = state(0) * stateNormalizationVector(0);
-    normalizedState(1) = state(2) * stateNormalizationVector(2);
-  }
+  Vt measuredState = state;
   if(noiseStdDev > 0.0)
   {
     OpenANN::RandomNumberGenerator rng;
-    for(int i = 0; i < normalizedState.rows(); i++)
-      normalizedState(i) += rng.sampleNormalDistribution<fpt>() * noiseStdDev;
+    for(int i = 0; i < measuredState.rows(); i++)
+      measuredState(i) += rng.sampleNormalDistribution<fpt>() * noiseStdDev;
+  }
+  if(fullyObservable)
+    normalizedState = measuredState.cwiseProduct(stateNormalizationVector);
+  else
+  {
+    normalizedState(0) = measuredState(0) * stateNormalizationVector(0);
+    normalizedState(1) = measuredState(2) * stateNormalizationVector(2);
   }
 }
