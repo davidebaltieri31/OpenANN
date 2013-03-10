@@ -66,6 +66,7 @@ ruby evaluate
  */
 
 int num_states = 0, num_actions = 0;
+int behaviors = 6;
 IPOPCMAES opt;
 DeepNetwork net;
 double episodeReturn;
@@ -93,13 +94,13 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
   {
     if(hiddenUnits > 0)
       net.compressedLayer(hiddenUnits, parameters, TANH, "dct");
-    net.compressedOutputLayer(num_actions, hiddenUnits+1, LOGISTIC, "dct");
+    net.compressedOutputLayer(behaviors, hiddenUnits+1, LOGISTIC, "dct");
   }
   else
   {
     if(hiddenUnits > 0)
       net.fullyConnectedLayer(hiddenUnits, TANH);
-    net.outputLayer(num_actions, LOGISTIC);
+    net.outputLayer(behaviors, LOGISTIC);
   }
   bestParameters = net.currentParameters();
   bestReturn = -std::numeric_limits<double>::max();
@@ -134,7 +135,7 @@ Vt convert(double state[])
 
 void convert(const Vt& action, double* out)
 {
-  for(int i = 0; i < num_actions; i++)
+  for(int i = 0; i < action.rows(); i++)
     out[i] = action(i);
 }
 
@@ -145,11 +146,21 @@ int chooseAction(double state_data[], double out_action[])
   OPENANN_CHECK_MATRIX_BROKEN(state);
   Vt y = net(state);
   Vt action(num_actions);
+  action.fill(0.0);
 
-  action = y;
-  if(isMatrixBroken(action))
-    action.fill(0.0);
-
+  for(int i = 0; i < num_actions/2; i+=3)
+    action(i) = y(0);
+  for(int i = 1; i < num_actions/2; i+=3)
+    action(i) = y(1);
+  for(int i = 2; i < num_actions/2; i+=3)
+    action(i) = y(2);
+  for(int i = num_actions/2+0; i < num_actions; i+=3)
+    action(i) = y(3);
+  for(int i = num_actions/2+1; i < num_actions; i+=3)
+    action(i) = y(4);
+  for(int i = num_actions/2+2; i < num_actions; i+=3)
+    action(i) = y(5);
+  action *= 10.0;
   convert(action, out_action);
   return 0;
 }
