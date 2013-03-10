@@ -5,11 +5,11 @@
 <constants>
     <!-- On a real octopus, tangential friction is about 50 times less than perpendicular friction -->
     <frictionTangential>0.2</frictionTangential>
-    <frictionPerpendicular>1</frictionPerpendicular>
+    <frictionPerpendicular>0.01</frictionPerpendicular>
     <pressure>10</pressure>
     <gravity>0.01</gravity>
     <surfaceLevel>5</surfaceLevel>
-    <buoyancy>0.08</buoyancy>
+    <buoyancy>0.02</buoyancy>
     <muscleActive>0.1</muscleActive>
     <musclePassive>0.05</musclePassive>
     <muscleNormalizedMinLength>0.4</muscleNormalizedMinLength>
