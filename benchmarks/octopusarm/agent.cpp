@@ -74,6 +74,7 @@ int hiddenUnits;
 int parameters;
 double bestReturn;
 Vt bestParameters;
+Vt lastState;
 
 int agent_init(int num_state_variables, int num_action_variables, int argc, const char *agent_param[])
 {
@@ -90,12 +91,14 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
   net.inputLayer(num_states);
   if(parameters > 0)
   {
-    net.compressedLayer(hiddenUnits, parameters, TANH, "dct");
+    if(hiddenUnits > 0)
+      net.compressedLayer(hiddenUnits, parameters, TANH, "dct");
     net.compressedOutputLayer(num_actions, hiddenUnits+1, LOGISTIC, "dct");
   }
   else
   {
-    net.fullyConnectedLayer(hiddenUnits, TANH);
+    if(hiddenUnits > 0)
+      net.fullyConnectedLayer(hiddenUnits, TANH);
     net.outputLayer(num_actions, LOGISTIC);
   }
   bestParameters = net.currentParameters();
@@ -106,6 +109,7 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
   stop.maximalRestarts = 1000;
   opt.setOptimizable(net);
   opt.setStopCriteria(stop);
+  opt.setSigma0(100.0);
   opt.restart();
 
   logger << net.dimension() << " parameters, " << num_states
@@ -122,10 +126,10 @@ const char* agent_get_name()
 
 Vt convert(double state[])
 {
-  Vt s(num_states);
+  lastState.resize(num_states);
   for(int i = 0; i < num_states; i++)
-    s(i) = state[i];
-  return s;
+    lastState(i) = state[i];
+  return lastState;
 }
 
 void convert(const Vt& action, double* out)
@@ -137,6 +141,7 @@ void convert(const Vt& action, double* out)
 int chooseAction(double state_data[], double out_action[])
 {
   Vt state = convert(state_data);
+  //logger << "state = " << state.transpose() << "\n";
   OPENANN_CHECK_MATRIX_BROKEN(state);
   Vt y = net(state);
   Vt action(num_actions);
@@ -160,12 +165,13 @@ int agent_start(double state_data[], double out_action[])
 int agent_step(double state_data[], double reward, double out_action[])
 {
   chooseAction(state_data, out_action);
-  episodeReturn += reward;
   return  0;
 }
 
 int agent_end(double reward) {
-  episodeReturn += reward;
+  fpt xDiff = lastState(num_states - 4) - 13.0;
+  fpt yDiff = lastState(num_states - 3) - 0.0;
+  episodeReturn = -xDiff*xDiff -yDiff*yDiff;
   logger << "agend end, return = " << episodeReturn << "\n";
   if(episodeReturn > bestReturn)
   {
