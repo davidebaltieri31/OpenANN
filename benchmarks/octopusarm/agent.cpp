@@ -164,14 +164,19 @@ int agent_start(double state_data[], double out_action[])
 
 int agent_step(double state_data[], double reward, double out_action[])
 {
+  episodeReturn += reward;
   chooseAction(state_data, out_action);
   return  0;
 }
 
 int agent_end(double reward) {
-  fpt xDiff = lastState(num_states - 4) - 13.0;
-  fpt yDiff = lastState(num_states - 3) - 0.0;
-  episodeReturn = -xDiff*xDiff -yDiff*yDiff;
+  episodeReturn += reward;
+  if(episodeReturn < 0.0)
+  {
+    fpt xDiff = lastState(num_states - 4) - 13.0;
+    fpt yDiff = lastState(num_states - 3) - 0.0;
+    episodeReturn = -xDiff*xDiff -yDiff*yDiff;
+  }
   logger << "agend end, return = " << episodeReturn << "\n";
   if(episodeReturn > bestReturn)
   {

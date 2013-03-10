@@ -8,7 +8,7 @@ setup = {
   :gui => true,
   :hidden_units => 10
 }
-param_configs = [107]
+param_configs = [10]
 runs = 1
 
 def start_server setup, port
