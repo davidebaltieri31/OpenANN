@@ -7,11 +7,13 @@ NeuroEvolutionAgent::NeuroEvolutionAgent(int h, bool b, const std::string a,
                                          bool fullyObservable,
                                          bool alphaBetaFilter,
                                          bool doubleExponentialSmoothing,
-                                         bool learnDESParameters)
+                                         bool learnDESParameters,
+                                         int restartAfter)
   : h(h), b(b), a(a), compress(compress), m(m),
     fullyObservable(fullyObservable), alphaBetaFilter(alphaBetaFilter),
     doubleExponentialSmoothing(doubleExponentialSmoothing),
-    learnDESParameters(learnDESParameters), gruauFitness(false)
+    learnDESParameters(learnDESParameters), restartAfter(restartAfter),
+    gruauFitness(false)
 {
 }
 
@@ -62,7 +64,7 @@ void NeuroEvolutionAgent::abandoneIn(Environment& environment)
   }
 
   StoppingCriteria stop;
-  stop.maximalFunctionEvaluations = 1000;
+  stop.maximalFunctionEvaluations = restartAfter;
   stop.maximalRestarts = 1000;
   opt.setOptimizable(*this);
   opt.setStopCriteria(stop);

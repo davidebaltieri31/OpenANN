@@ -31,6 +31,8 @@ class NeuroEvolutionAgent : public Agent, public Optimizable
   bool learnDESParameters;
   //! Use Gruau's fitness function.
   bool gruauFitness;
+  //! Restart after a number of episodes
+  int restartAfter;
 
   Environment* environment;
   int inputSize;
@@ -46,7 +48,8 @@ public:
                       bool fullyObservable = true,
                       bool alphaBetaFilter = false,
                       bool doubleExponentialSmoothing = false,
-                      bool learnDESParameters = false);
+                      bool learnDESParameters = false,
+                      int restartAfter = 1000);
   ~NeuroEvolutionAgent();
   virtual void abandoneIn(Environment& environment);
   virtual void chooseAction();

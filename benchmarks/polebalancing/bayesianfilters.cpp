@@ -85,7 +85,7 @@ Results benchmarkConfiguration(bool doublePole, bool fullyObservable,
   {
     NeuroEvolutionAgent agent(0, false, "linear", parameters > 0, parameters,
         fullyObservable, alphaBetaFilter, doubleExponentialSmoothing,
-        learnDESParameters);
+        learnDESParameters, 10000);
     agent.setSigma0(sigma0);
     Result result = benchmarkSingleRun(*env, agent);
     if(run % 10 == 9)
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 
   OpenANN::Logger configLogger(OpenANN::Logger::CONSOLE);
   int runs = 10;
-  fpt sigma0 = 10.0;
+  fpt sigma0 = 1.0;
 
   Results results;
 

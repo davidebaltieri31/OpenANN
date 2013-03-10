@@ -8,6 +8,7 @@ namespace OpenANN {
 
 class AlphaBetaFilter : public Layer
 {
+  Logger debugLogger;
   int I, J;
   fpt deltaT;
   bool bias;
