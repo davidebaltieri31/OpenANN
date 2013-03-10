@@ -184,9 +184,13 @@ int agent_end(double reward) {
   episodeReturn += reward;
   if(episodeReturn < 0.0)
   {
-    fpt xDiff = lastState(num_states - 4) - 13.0;
-    fpt yDiff = lastState(num_states - 3) - 0.0;
-    episodeReturn = -xDiff*xDiff -yDiff*yDiff;
+    episodeReturn = 0.0;
+    for(int i = 2; i < num_states; i+=4)
+    {
+      fpt xDiff = lastState(i) - 13.0;
+      fpt yDiff = lastState(i+1) - 0.0;
+      episodeReturn = (-xDiff*xDiff -yDiff*yDiff)*i/num_states;
+    }
   }
   logger << "agend end, return = " << episodeReturn << "\n";
   if(episodeReturn > bestReturn)

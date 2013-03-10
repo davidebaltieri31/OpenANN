@@ -6,9 +6,9 @@ setup = {
   :cmd_mod => " > /dev/null 2> /dev/null < /dev/null",
   :episodes => 1000,
   :gui => true,
-  :hidden_units => 10
+  :hidden_units => 0
 }
-param_configs = [10]
+param_configs = [0]
 runs = 1
 
 def start_server setup, port
