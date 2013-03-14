@@ -6,14 +6,15 @@ setup = {
   :cmd_mod => " > /dev/null 2> /dev/null < /dev/null",
   :episodes => 1000,
   :gui => true,
-  :hidden_units => 0
+  :hidden_units => 0,
+  :agent => false
 }
 param_configs = [0]
 runs = 1
 
 def start_server setup, port
-  cmd = "java -Duser.language=en -Duser.country=US -Duser.variant=US -Djava.endorsed.dirs=#{setup[:env_dir]}lib -jar #{setup[:env_dir]}octopus-environment.jar #{setup[:gui] ? "external_gui" : "external"} #{setup[:settings_dir]}settings.xml #{port.to_s}"
-  system cmd + setup[:cmd_mod] + " &"
+  cmd = "java -Duser.language=en -Duser.country=US -Duser.variant=US -Djava.endorsed.dirs=#{setup[:env_dir]}lib -jar #{setup[:env_dir]}octopus-environment.jar #{setup[:gui] ? setup[:agent] ? "external_gui" : "internal" : "external"} #{setup[:settings_dir]}settings.xml #{port.to_s}"
+  system cmd + setup[:cmd_mod] + (setup[:agent] ? " &" : "")
 end
 
 def start_client setup, port, parameters, hidden_units
@@ -29,7 +30,7 @@ param_configs.each do |params|
     runs.times do |run|
       sleep 2
       puts "Starting run \##{(run+1).to_s} with #{params.to_s} parameters."
-      start_client setup, port, params, setup[:hidden_units]
+      start_client setup, port, params, setup[:hidden_units] if setup[:agent]
       puts "Finished run \##{(run+1).to_s} with #{params.to_s} parameters."
     end
   end
