@@ -129,14 +129,14 @@ Vt convert(double state[])
 {
   lastState.resize(num_states);
   for(int i = 0; i < num_states; i++)
-    lastState(i) = state[i];
+    lastState(i) = (fpt) state[i];
   return lastState;
 }
 
 void convert(const Vt& action, double* out)
 {
   for(int i = 0; i < action.rows(); i++)
-    out[i] = action(i);
+    out[i] = (double) action(i);
 }
 
 int chooseAction(double state_data[], double out_action[])
@@ -189,7 +189,7 @@ int agent_end(double reward) {
     {
       fpt xDiff = lastState(i) - 13.0;
       fpt yDiff = lastState(i+1) - 0.0;
-      episodeReturn = (-xDiff*xDiff -yDiff*yDiff)*i/num_states;
+      episodeReturn = (double) ((-xDiff*xDiff -yDiff*yDiff)*i/num_states);
     }
   }
   logger << "agend end, return = " << episodeReturn << "\n";
@@ -199,7 +199,7 @@ int agent_end(double reward) {
     bestParameters = net.currentParameters();
   }
   RandomNumberGenerator rng;
-  opt.setError(-episodeReturn+0.1*episodeReturn*rng.sampleNormalDistribution<double>());
+  opt.setError((fpt) (-episodeReturn+0.1*episodeReturn*rng.sampleNormalDistribution<double>()));
   if(opt.terminated())
     opt.restart();
   return 0;

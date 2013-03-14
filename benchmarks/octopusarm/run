@@ -12,7 +12,7 @@ param_configs = [0]
 runs = 1
 
 def start_server setup, port
-  cmd = "java -Djava.endorsed.dirs=#{setup[:env_dir]}lib -jar #{setup[:env_dir]}octopus-environment.jar #{setup[:gui] ? "external_gui" : "external"} #{setup[:settings_dir]}settings.xml #{port.to_s}"
+  cmd = "java -Duser.language=en -Duser.country=US -Duser.variant=US -Djava.endorsed.dirs=#{setup[:env_dir]}lib -jar #{setup[:env_dir]}octopus-environment.jar #{setup[:gui] ? "external_gui" : "external"} #{setup[:settings_dir]}settings.xml #{port.to_s}"
   system cmd + setup[:cmd_mod] + " &"
 end
 
