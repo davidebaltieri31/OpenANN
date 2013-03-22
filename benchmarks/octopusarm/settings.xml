@@ -9,7 +9,7 @@
     <pressure>10</pressure>
     <gravity>0.01</gravity>
     <surfaceLevel>5</surfaceLevel>
-    <buoyancy>0.02</buoyancy>
+    <buoyancy>0.1</buoyancy>
     <muscleActive>0.1</muscleActive>
     <musclePassive>0.05</musclePassive>
     <muscleNormalizedMinLength>0.4</muscleNormalizedMinLength>
@@ -22,54 +22,54 @@
 
 <environment>
 
-<targetTask timeLimit="300" stepReward="-0.01">
-    <target position="11 0" reward="3" />
+<targetTask timeLimit="500" stepReward="-0.01">
+    <target position="11 -6" reward="3" />
 </targetTask>
 
 <arm>
   <nodePair>
-    <upper velocity='0 0' position='0 1' mass='1' />
-    <lower velocity='0 0' position='1 1' mass='1' />
+    <upper velocity='0 0' position='0 -8' mass='0.7090909091' />
+    <lower velocity='0 0' position='1 -8' mass='0.7090909091' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 0' mass='0.9900990099' />
-    <lower velocity='0 0' position='1 0' mass='0.9900990099' />
+    <upper velocity='0 0' position='0 -7' mass='0.8174311927' />
+    <lower velocity='0 0' position='1 -7' mass='0.8174311927' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -1' mass='0.9803921569' />
-    <lower velocity='0 0' position='1 -1' mass='0.9803921569' />
+    <upper velocity='0 0' position='0 -6' mass='0.8259259259' />
+    <lower velocity='0 0' position='1 -6' mass='0.8259259259' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -2' mass='0.9708737864' />
-    <lower velocity='0 0' position='1 -2' mass='0.9708737864' />
+    <upper velocity='0 0' position='0 -5' mass='0.8345794393' />
+    <lower velocity='0 0' position='1 -5' mass='0.8345794393' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -3' mass='0.9615384615' />
-    <lower velocity='0 0' position='1 -3' mass='0.9615384615' />
+    <upper velocity='0 0' position='0 -4' mass='0.8433962264' />
+    <lower velocity='0 0' position='1 -4' mass='0.8433962264' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -4' mass='0.9523809524' />
-    <lower velocity='0 0' position='1 -4' mass='0.9523809524' />
+    <upper velocity='0 0' position='0 -3' mass='0.9523809524' />
+    <lower velocity='0 0' position='1 -3' mass='0.9523809524' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -5' mass='0.8433962264' />
-    <lower velocity='0 0' position='1 -5' mass='0.8433962264' />
+    <upper velocity='0 0' position='0 -2' mass='0.9615384615' />
+    <lower velocity='0 0' position='1 -2' mass='0.9615384615' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -6' mass='0.8345794393' />
-    <lower velocity='0 0' position='1 -6' mass='0.8345794393' />
+    <upper velocity='0 0' position='0 -1' mass='0.9708737864' />
+    <lower velocity='0 0' position='1 -1' mass='0.9708737864' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -7' mass='0.8259259259' />
-    <lower velocity='0 0' position='1 -7' mass='0.8259259259' />
+    <upper velocity='0 0' position='0 0' mass='0.9803921569' />
+    <lower velocity='0 0' position='1 0' mass='0.9803921569' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -8' mass='0.8174311927' />
-    <lower velocity='0 0' position='1 -8' mass='0.8174311927' />
+    <upper velocity='0 0' position='0 1' mass='0.9900990099' />
+    <lower velocity='0 0' position='1 1' mass='0.9900990099' />
   </nodePair>
   <nodePair>
-    <upper velocity='0 0' position='0 -9' mass='0.7090909091' />
-    <lower velocity='0 0' position='1 -9' mass='0.7090909091' />
+    <upper velocity='0 0' position='0 2' mass='1' />
+    <lower velocity='0 0' position='1 2' mass='1' />
   </nodePair>
 </arm>
 
