@@ -187,8 +187,8 @@ int agent_end(double reward) {
     episodeReturn = 0.0;
     for(int i = 2; i < num_states; i+=4)
     {
-      fpt xDiff = lastState(i) - 13.0;
-      fpt yDiff = lastState(i+1) - 0.0;
+      fpt xDiff = lastState(i) - 11.0;
+      fpt yDiff = lastState(i+1) - -6.0;
       episodeReturn = (double) ((-xDiff*xDiff -yDiff*yDiff)*i/num_states);
     }
   }
