@@ -67,6 +67,9 @@ ruby evaluate
 
 int num_states = 0, num_actions = 0;
 int behaviors = 6;
+double shortestDist;
+double xGoal = 11.0; // TODO adjust goal
+double yGoal = -6.0;
 IPOPCMAES opt;
 DeepNetwork net;
 double episodeReturn;
@@ -110,7 +113,7 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
   stop.maximalRestarts = 1000;
   opt.setOptimizable(net);
   opt.setStopCriteria(stop);
-  opt.setSigma0(100.0);
+  opt.setSigma0(1.0);
   opt.restart();
 
   logger << net.dimension() << " parameters, " << num_states
@@ -137,6 +140,15 @@ void convert(const Vt& action, double* out)
 {
   for(int i = 0; i < action.rows(); i++)
     out[i] = (double) action(i);
+}
+
+void updateShortestDist()
+{
+  double xDiff = lastState(lastState.rows() - 4) - xGoal;
+  double yDiff = lastState(lastState.rows() - 3) - yGoal;
+  double dist = xDiff*xDiff + yDiff*yDiff;
+  if(dist < shortestDist)
+    shortestDist = dist;
 }
 
 int chooseAction(double state_data[], double out_action[])
@@ -167,9 +179,11 @@ int chooseAction(double state_data[], double out_action[])
 
 int agent_start(double state_data[], double out_action[])
 {
+  shortestDist = std::numeric_limits<double>::max();
   net.setParameters(opt.getNext());
   episodeReturn = 0;
   chooseAction(state_data, out_action);
+  updateShortestDist();
   return 0;
 }
 
@@ -177,21 +191,14 @@ int agent_step(double state_data[], double reward, double out_action[])
 {
   episodeReturn += reward;
   chooseAction(state_data, out_action);
+  updateShortestDist();
   return  0;
 }
 
 int agent_end(double reward) {
   episodeReturn += reward;
   if(episodeReturn < 0.0)
-  {
-    episodeReturn = 0.0;
-    for(int i = 2; i < num_states; i+=4)
-    {
-      fpt xDiff = lastState(i) - 13.0;
-      fpt yDiff = lastState(i+1) - 0.0;
-      episodeReturn = (double) ((-xDiff*xDiff -yDiff*yDiff)*i/num_states);
-    }
-  }
+    episodeReturn = -shortestDist;
   logger << "agend end, return = " << episodeReturn << "\n";
   if(episodeReturn > bestReturn)
   {
@@ -199,7 +206,7 @@ int agent_end(double reward) {
     bestParameters = net.currentParameters();
   }
   RandomNumberGenerator rng;
-  opt.setError((fpt) (-episodeReturn+0.1*episodeReturn*rng.sampleNormalDistribution<double>()));
+  opt.setError(episodeReturn);
   if(opt.terminated())
     opt.restart();
   return 0;

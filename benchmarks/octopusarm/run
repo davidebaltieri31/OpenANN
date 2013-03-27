@@ -6,7 +6,7 @@ setup = {
   :cmd_mod => " > /dev/null 2> /dev/null < /dev/null",
   :episodes => 1000,
   :gui => true,
-  :hidden_units => 0,
+  :hidden_units => 10,
   :agent => false
 }
 param_configs = [0]

@@ -22,7 +22,7 @@
 
 <environment>
 
-<targetTask timeLimit="500" stepReward="-0.01">
+<targetTask timeLimit="300" stepReward="-0.01">
     <target position="11 -6" reward="3" />
 </targetTask>
 
