@@ -206,7 +206,7 @@ int agent_end(double reward) {
     bestParameters = net.currentParameters();
   }
   RandomNumberGenerator rng;
-  opt.setError(episodeReturn);
+  opt.setError(-episodeReturn);
   if(opt.terminated())
     opt.restart();
   return 0;

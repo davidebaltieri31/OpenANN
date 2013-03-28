@@ -4,10 +4,10 @@ setup = {
   :env_dir => "octopus-code-distribution/environment/",
   :settings_dir => "./",
   :cmd_mod => " > /dev/null 2> /dev/null < /dev/null",
-  :episodes => 1000,
+  :episodes => 5000,
   :gui => true,
   :hidden_units => 10,
-  :agent => false
+  :agent => true
 }
 param_configs = [0]
 runs = 1
