@@ -65,7 +65,10 @@ ruby evaluate
  * script on 5 computers, it will take about 4 days to finish.
  */
 
+bool fullyObservable = true;
 int num_states = 0, num_actions = 0;
+int observableStates = 0;
+int i = 0;
 int behaviors = 6;
 double shortestDist;
 double xGoal = 11.0; // TODO adjust goal
@@ -73,7 +76,7 @@ double yGoal = -6.0;
 IPOPCMAES opt;
 DeepNetwork net;
 double episodeReturn;
-Logger logger(Logger::CONSOLE);
+Logger logger(Logger::CONSOLE); // TODO log to file
 int hiddenUnits;
 int parameters;
 double bestReturn;
@@ -91,8 +94,17 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
     parameters = atoi(agent_param[0]);
   if(argc > 1)
     hiddenUnits = atoi(agent_param[1]);
+  if(argc > 2)
+    fullyObservable = std::string(agent_param[2]) == "mdp";
 
-  net.inputLayer(num_states);
+  if(fullyObservable)
+    observableStates = num_states;
+  else // remove velocities
+    observableStates = (num_states - 2) / 2 + 2;
+
+  net.inputLayer(observableStates);
+  if(!fullyObservable)
+    net.alphaBetaFilterLayer(0.01);
   if(parameters > 0)
   {
     if(hiddenUnits > 0)
@@ -116,8 +128,9 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
   opt.setSigma0(1.0);
   opt.restart();
 
-  logger << net.dimension() << " parameters, " << num_states
-      << " state components, " << num_actions << " action components\n";
+  logger << "# " << net.dimension() << " parameters, " << observableStates
+      << " state components, " << num_actions << " action components\n"
+      << "# " << (fullyObservable ? "MDP" : "POMDP") << "\n\n";
   return 0;
 }
 
@@ -130,22 +143,35 @@ const char* agent_get_name()
 
 Vt convert(double state[])
 {
-  lastState.resize(num_states);
-  for(int i = 0; i < num_states; i++)
-    lastState(i) = (fpt) state[i];
+  lastState.resize(observableStates);
+  if(fullyObservable)
+  {
+    for(int i = 0; i < num_states; i++)
+      lastState(i) = (fpt) state[i];
+  }
+  else
+  {
+    lastState(0) = (fpt) state[0];
+    lastState(1) = (fpt) state[1];
+    for(int i = 0; i < observableStates-2; i+=2)
+    {
+      lastState(2+i) = state[2+2*i];
+      lastState(3+i) = state[3+2*i];
+    }
+  }
   return lastState;
 }
 
 void convert(const Vt& action, double* out)
 {
-  for(int i = 0; i < action.rows(); i++)
+  for(int i = 0; i < num_actions; i++)
     out[i] = (double) action(i);
 }
 
 void updateShortestDist()
 {
-  double xDiff = lastState(lastState.rows() - 4) - xGoal;
-  double yDiff = lastState(lastState.rows() - 3) - yGoal;
+  double xDiff = lastState(lastState.rows() - (fullyObservable ? 4 : 2)) - xGoal;
+  double yDiff = lastState(lastState.rows() - (fullyObservable ? 3 : 1)) - yGoal;
   double dist = xDiff*xDiff + yDiff*yDiff;
   if(dist < shortestDist)
     shortestDist = dist;
@@ -172,7 +198,7 @@ int chooseAction(double state_data[], double out_action[])
     action(i) = y(4);
   for(int i = num_actions/2+2; i < num_actions; i+=3)
     action(i) = y(5);
-  action *= 10.0;
+  //action *= 10.0;
   convert(action, out_action);
   return 0;
 }
@@ -199,7 +225,7 @@ int agent_end(double reward) {
   episodeReturn += reward;
   if(episodeReturn < 0.0)
     episodeReturn = -shortestDist;
-  logger << "agend end, return = " << episodeReturn << "\n";
+  logger << ++i << " " << episodeReturn << "\n";
   if(episodeReturn > bestReturn)
   {
     bestReturn = episodeReturn;
