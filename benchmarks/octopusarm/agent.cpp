@@ -66,6 +66,7 @@ ruby evaluate
  */
 
 bool fullyObservable = true;
+bool abfilters = false;
 double measurementNoise = 0.0;
 int num_states = 0, num_actions = 0;
 int observableStates = 0;
@@ -96,7 +97,10 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
   if(argc > 1)
     hiddenUnits = atoi(agent_param[1]);
   if(argc > 2)
+  {
     fullyObservable = std::string(agent_param[2]) == "mdp";
+    abfilters = std::string(agent_param[2]) == "pomdpab";
+  }
   if(argc > 3)
     measurementNoise = atof(agent_param[3]);
 
@@ -106,7 +110,7 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
     observableStates = (num_states - 2) / 2 + 2;
 
   net.inputLayer(observableStates);
-  if(!fullyObservable)
+  if(!fullyObservable && abfilters)
     net.alphaBetaFilterLayer(0.01);
   if(parameters > 0)
   {
@@ -134,6 +138,7 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
   logger << "# " << net.dimension() << " parameters, " << observableStates
       << " state components, " << num_actions << " action components\n"
       << "# " << (fullyObservable ? "MDP" : "POMDP") << "\n"
+      << "# " << (abfilters ? "with" : "without") << " alpha-beta filters\n"
       << "# measurement noise = " << measurementNoise << "\n\n";
   return 0;
 }

@@ -11,7 +11,7 @@ setup = {
 }
 # TODO choose reasonable configurations
 param_configs = [0]
-observable_configs = ["pomdp"]#["pomdp", "mdp"]
+observable_configs = ["pomdp"]#, "pomdpab", "mdp"]
 measurement_noise = [0.5]
 runs = 1
 
