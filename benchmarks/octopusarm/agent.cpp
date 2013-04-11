@@ -66,6 +66,7 @@ ruby evaluate
  */
 
 bool fullyObservable = true;
+double measurementNoise = 0.0;
 int num_states = 0, num_actions = 0;
 int observableStates = 0;
 int i = 0;
@@ -96,6 +97,8 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
     hiddenUnits = atoi(agent_param[1]);
   if(argc > 2)
     fullyObservable = std::string(agent_param[2]) == "mdp";
+  if(argc > 3)
+    measurementNoise = atof(agent_param[3]);
 
   if(fullyObservable)
     observableStates = num_states;
@@ -130,7 +133,8 @@ int agent_init(int num_state_variables, int num_action_variables, int argc, cons
 
   logger << "# " << net.dimension() << " parameters, " << observableStates
       << " state components, " << num_actions << " action components\n"
-      << "# " << (fullyObservable ? "MDP" : "POMDP") << "\n\n";
+      << "# " << (fullyObservable ? "MDP" : "POMDP") << "\n"
+      << "# measurement noise = " << measurementNoise << "\n\n";
   return 0;
 }
 
@@ -158,6 +162,12 @@ Vt convert(double state[])
       lastState(2+i) = state[2+2*i];
       lastState(3+i) = state[3+2*i];
     }
+  }
+  if(measurementNoise > 0.0)
+  {
+    RandomNumberGenerator rng;
+    for(int i = 0; i < observableStates; i++)
+      lastState(i) += rng.sampleNormalDistribution<double>() * measurementNoise;
   }
   return lastState;
 }
