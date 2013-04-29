@@ -1,5 +1,5 @@
 #include <OpenANN/OpenANN>
-#include <OpenANN/optimization/MBSGD.h>
+#include <OpenANN/optimization/CG.h>
 #include <Eigen/Dense>
 #include <iostream>
 
@@ -74,7 +74,10 @@ int main()
   // Train network
   StoppingCriteria stop;
   stop.minimalValueDifferences = 1e-10;
-  train(net, "LMA", SSE, stop);
+  CG optimizer;
+  optimizer.setOptimizable(net);
+  optimizer.setStopCriteria(stop);
+  optimizer.optimize();
 
   // Use network
   for(int n = 0; n < N; n++)
