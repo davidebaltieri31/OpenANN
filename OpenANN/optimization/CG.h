@@ -46,11 +46,20 @@ class CG : public Optimizer
    * Maximum of function evaluations per line search.
    */
   const int MAX_LINE_SEARCH;
+  /**
+   * Don't reevaluate within INT of the limit of the current bracket.
+   */
+  const double INT;
+  /**
+   * Maximum extrapolation factor of current step-size.
+   */
+  const double EXT;
   int lineSearchFailed;
 public:
   CG()
     : debugLogger(Logger::CONSOLE), opt(0), iteration(-1), n(0),
-      SIG(0.1), RHO(0.5*SIG), MAX_LINE_SEARCH(20), lineSearchFailed(0)
+      SIG(0.1), RHO(0.5*SIG), MAX_LINE_SEARCH(20), INT(0.1), EXT(3.0),
+      lineSearchFailed(0)
   {
   }
 
@@ -78,72 +87,83 @@ public:
 
   virtual bool step()
   {
-    double reduction = 1.0; // reduction in function value to be expected in the first line-search, TODO
+    double red = 1.0; // reduction in function value to be expected in the first line-search, TODO
     // 1) Compute error / gradient
     // TODO mini-batch cg
-    Eigen::VectorXd parameters = opt->currentParameters();
-    this->parameters = parameters;
-    double error = opt->error();
-    this->error = error;
-    Eigen::VectorXd gradient = opt->gradient();
-    this->gradient = gradient;
+    Eigen::VectorXd X = opt->currentParameters();
+    double f0 = opt->error();
+    Eigen::VectorXd df0 = opt->gradient();
+    double fX = f0;
 
-    double slope = - gradient.transpose() * gradient;
-    double x1, error1, slope1;
-    double x2, error2, slope2;
-    // initial step is red/(|gradient|+1)
-    double x3 = reduction / (1-slope), error3, slope3;
-    Eigen::VectorXd gradient3(n);
-    double x0 = 0, error0 = error, slope0 = slope;
+    Eigen::VectorXd s = -gradient; // initial search direction (steepest)
+    double d0 = -s.transpose() * s; // slope
+    double x3 = red / (1-d0); // initial step is red/(|s|+1)
+
+    Eigen::VectorXd X0 = X;
+    double F0 = f0;
+    Eigen::VectorXd dF0 = df0;
+
+    int M = MAX_LINE_SEARCH;
+
+    double x1, f1, d1, x2, f2, d2, f3, d3;
+    Eigen::VectorXd df3;
 
     while(true) // keep extrapolating as long as necessary
     {
       x2 = 0.0;
-      error2 = error0;
-      slope2 = slope0;
-      error3 = error0;
-      slope3 = slope0;
+      f2 = f0;
+      d2 = d0;
+      f3 = f0;
+      df3 = df0;
 
-      int m = MAX_LINE_SEARCH;
       bool success = false;
-      double error3;
-      Eigen::VectorXd gradient3(n);
       do {
-        m--;
-        opt->setParameters(parameters - x3*gradient);
-        error3 = opt->error();
-        gradient3 = opt->gradient();
-        if(isnan(error3) || isinf(error3) || isMatrixBroken(gradient3))
+        M--;
+        opt->setParameters(X + x3*s);
+        f3 = opt->error();
+        df3 = opt->gradient();
+        if(isnan(f3) || isinf(f3) || isMatrixBroken(df3))
           x3 = (x2+x3)/2; // bisect and try again
         else
           success = true;
-      } while(!success && m > 0);
+      } while(!success && M > 0);
 
       // keep best values
-      if(error3 < error)
+      if(f3 < F0)
       {
-        parameters = parameters - x3*gradient;
-        error = error3;
-        gradient = gradient3;
+        X0 = X + x3*s;
+        F0 = f3;
+        dF0 = df3;
       }
-      slope3 = gradient3.transpose() * (-this->gradient); // new slope
+      d3 = df3.transpose() * s; // new slope
 
       // are we done extrapolating?
-      if(slope3 > SIG*slope || error3 > this->error+x3*RHO*slope)
+      if(d3 > SIG*d0 || f3 > f0+x3*RHO*d0 || M == 0)
         break;
     }
 
     // move point 2 to point 1
     x1 = x2;
-    error1 = error2;
-    gradient1 = gradient2;
+    f1 = f2;
+    d1 = d2;
     // move point 3 to point 2
     x2 = x3;
-    error2 = error3;
-    gradient2 = gradient3;
+    f2 = f3;
+    d2 = d3;
     // make cubic extrapolation
-    double a = 6*(error1-error2)+3*(gradient2+gradient1)*(x2-x1);
+    double diffx2x1 = x2-x1;
+    double A = 6*(f1-f2)+3*(d2+d1)*diffx2x1;
+    double B = 3*(f2-f1)-(2*d1+d2)*diffx2x1;
+    x3 = x1-d1*diffx2x1*diffx2x1/(B+std::sqrt(B*B-A*d1*(x2-x1))); // num. error possible, ok!
+    if(isnan(x3) || isinf(x3) || x3 < 0) // num prob | wrong sign?
+      x3 = x2*EXT; // extrapolate maximum amount
+    else if(x3 > x2*EXT) // new point beyond extrapolation limit?
+      x3 = x2*EXT; // extrapolate maximum amount
+    else if(x3 < x2+INT*(x2-x1)) // new point too close to previous point?
+      x3 = x2+INT*(x2-x1);
+
     // TODO implement
+
     iteration++;
     bool run = (stop.maximalIterations != stop.defaultValue.maximalIterations
         && iteration >= stop.maximalIterations);
