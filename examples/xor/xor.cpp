@@ -74,6 +74,7 @@ int main()
   // Train network
   StoppingCriteria stop;
   stop.minimalValueDifferences = 1e-10;
+  stop.maximalIterations = 1000;
   CG optimizer;
   optimizer.setOptimizable(net);
   optimizer.setStopCriteria(stop);
