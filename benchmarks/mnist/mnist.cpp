@@ -2,6 +2,7 @@
 #include <OpenANN/optimization/MBSGD.h>
 #include "IDXLoader.h"
 #include <OpenANN/io/DirectStorageDataSet.h>
+#include <OpenANN/IntrinsicPlasticity.h>
 #ifdef PARALLEL_CORES
 #include <omp.h>
 #endif
@@ -39,16 +40,13 @@ int main(int argc, char** argv)
 
   IDXLoader loader(28, 28, 60000, 10000, directory);
 
-  OpenANN::Net net;                                               // Nodes per layer:
-  net.inputLayer(1, loader.padToX, loader.padToY)                 //   1 x 28 x 28
-     .convolutionalLayer(10, 5, 5, OpenANN::RECTIFIER, 0.05)      //  20 x 24 x 24
-     .maxPoolingLayer(2, 2)                                       //  20 x 12 x 12
-     .convolutionalLayer(16, 5, 5, OpenANN::RECTIFIER, 0.05)      //  20 x  8 x  8
-     .maxPoolingLayer(2, 2)                                       //  20 x  4 x  4
-     .fullyConnectedLayer(120, OpenANN::RECTIFIER, 0.05)          // 150
-     .fullyConnectedLayer(84, OpenANN::RECTIFIER, 0.05)          // 100
-     .outputLayer(loader.F, OpenANN::LINEAR, 0.05)                //  10
-     .trainingSet(loader.trainingInput, loader.trainingOutput);
+  OpenANN::Net net;
+  net.inputLayer(1, loader.padToX, loader.padToY)
+     .extremeLayer(800, OpenANN::LINEAR, 0.5)
+     .intrinsicPlasticityLayer(0.2)
+     .outputLayer(loader.F, OpenANN::LINEAR, 0.05);
+  OpenANN::DirectStorageDataSet trainingSet(&loader.trainingInput, &loader.trainingOutput);
+  net.trainingSet(trainingSet);
   OpenANN::DirectStorageDataSet testSet(&loader.testInput, &loader.testOutput,
                                         OpenANN::DirectStorageDataSet::MULTICLASS,
                                         OpenANN::Logger::FILE);
@@ -59,6 +57,22 @@ int main(int argc, char** argv)
                << ", N = " << loader.trainingN << ", L = " << net.dimension();
   OPENANN_INFO << "Press CTRL+C to stop optimization after the next"
       " iteration is finished.";
+
+  {
+    OPENANN_INFO << "IP training started.";
+    OpenANN::IntrinsicPlasticity& ip = (OpenANN::IntrinsicPlasticity&) net.getLayer(2);
+    OpenANN::DataSet* transformedDataSet = net.propagateDataSet(trainingSet, 2);
+    ip.trainingSet(*transformedDataSet);
+    OpenANN::MBSGD ipOpt(5e-5, 0.9, 1);
+    ipOpt.setOptimizable(net);
+    OpenANN::StoppingCriteria ipStop;
+    ipStop.maximalIterations = 1;
+    ipOpt.setStopCriteria(ipStop);
+    ipOpt.optimize();
+    ip.removeTrainingSet();
+    delete transformedDataSet;
+    OPENANN_INFO << "IP training finished.";
+  }
 
   OpenANN::StoppingCriteria stop;
   stop.maximalIterations = 100;
