@@ -1,7 +1,7 @@
 OpenANN
 =======
 
-An open source library for artificial neural networks.
+Forked and modified to run on Windows with VS
 
 [API documentation](http://openann.github.io/OpenANN-apidoc/)
 
@@ -16,20 +16,10 @@ Minimum Requirements
 --------------------
 
 * CMake 2.8 or higher
-* C++ compiler, e. g. g++
-* build management tool that is supported by CMake, e. g. make
 * Eigen 3 library
-* shell, wget, unzip
-
 Installation
 ------------
 
-Linux
-
-    cd path/to/OpenANN/dir
-    mkdir build
-    cd build
-    cmake ..
-    sudo make install
-    sudo ldconfig
-
+Use CMake to create VS solution and that's it. 
+INSTALL doens't work yet.
+Also, if you change the lib to static seems to run better.
