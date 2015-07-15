@@ -20,6 +20,7 @@ Minimum Requirements
 Installation
 ------------
 
+
 Use CMake to create VS solution and that's it. 
-INSTALL doens't work yet.
+INSTALL doesn't work yet.
 Also, if you change the lib to static seems to run better.
