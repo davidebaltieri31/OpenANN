@@ -1,8 +1,7 @@
-#ifndef OPENANN_UTIL_STOPWATCH_H_
-#define OPENANN_UTIL_STOPWATCH_H_
+#ifndef __Stopwatch_H__
+#define __Stopwatch_H__
 
-#define NOMINMAX
-#include <Windows.h>
+#include <sys/time.h>
 
 class Stopwatch
 {
@@ -11,7 +10,9 @@ class Stopwatch
   /** @return The system time with microsecond precision. */
   inline unsigned long getSystime()
   {
-	  return (unsigned long)GetTickCount();
+    timeval t;
+    gettimeofday(&t,0);
+    return (unsigned long) t.tv_sec * 1000000L + (unsigned long) t.tv_usec;
   }
 public:
   enum Precision {MICROSECOND, MILLISECOND, HUNDREDTHS, TENTHS, SECONDS};
@@ -70,5 +71,5 @@ public:
   }
 };
 
-#endif // OPENANN_UTIL_STOPWATCH_H_
+#endif // __Stopwatch_H__
 

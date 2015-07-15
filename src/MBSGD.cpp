@@ -8,7 +8,7 @@
 #include <OpenANN/util/OpenANNException.h>
 #include <OpenANN/util/EigenWrapper.h>
 #include <OpenANN/io/Logger.h>
-#include <Test/Stopwatch.h>
+#include <OpenANN/util/Stopwatch.h>
 #include <numeric>
 
 namespace OpenANN

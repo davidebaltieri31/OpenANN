@@ -88,11 +88,11 @@ std::ostream& Log::get(LogLevel level, const char* name_space)
   time_t now;
   std::time(&now);
   struct tm* current = std::localtime(&now);
-  char current_time[32];
+  char current_time[128];
 
   this->level = level;
 
-  std::strftime(current_time, sizeof(current_time), "%F %X", current);
+  std::strftime(current_time, sizeof(current_time), "%x-%X", current);
 
   message << std::setw(6) << LevelToString[level] << "  "
           << current_time << "  ";

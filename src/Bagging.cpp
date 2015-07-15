@@ -13,11 +13,13 @@ Bagging::Bagging(double bagSize)
 EnsembleLearner& Bagging::addLearner(Learner& learner)
 {
   models.push_back(&learner);
+  return *this;
 }
 
 EnsembleLearner& Bagging::setOptimizer(Optimizer& optimizer)
 {
   this->optimizer = &optimizer;
+  return *this;
 }
 
 EnsembleLearner& Bagging::train(DataSet& dataSet)
@@ -32,6 +34,7 @@ EnsembleLearner& Bagging::train(DataSet& dataSet)
     optimizer->optimize();
     (*m)->removeTrainingSet();
   }
+  return *this;
 }
 
 Eigen::MatrixXd Bagging::operator()(Eigen::MatrixXd& X)

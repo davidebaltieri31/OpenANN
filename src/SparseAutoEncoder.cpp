@@ -166,6 +166,7 @@ Eigen::VectorXd SparseAutoEncoder::getParameters()
       params(idx++) = W1(h, d);
   for(int h = 0; h < H; h++)
     params(idx++) = b1(h);
+  return params;
 }
 
 OutputInfo SparseAutoEncoder::initialize(std::vector<double*>& parameterPointers,

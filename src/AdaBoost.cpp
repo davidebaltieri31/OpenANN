@@ -19,11 +19,13 @@ Eigen::VectorXd AdaBoost::getWeights()
 EnsembleLearner& AdaBoost::addLearner(Learner& learner)
 {
   models.push_back(&learner);
+  return *this;
 }
 
 EnsembleLearner& AdaBoost::setOptimizer(Optimizer& optimizer)
 {
   this->optimizer = &optimizer;
+  return *this;
 }
 
 EnsembleLearner& AdaBoost::train(DataSet& dataSet)
@@ -58,6 +60,7 @@ EnsembleLearner& AdaBoost::train(DataSet& dataSet)
     resampled.updateWeights(weights);
   }
   modelWeights /= modelWeights.sum();
+  return *this;
 }
 
 Eigen::MatrixXd AdaBoost::operator()(Eigen::MatrixXd& X)

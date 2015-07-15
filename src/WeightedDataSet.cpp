@@ -15,6 +15,7 @@ WeightedDataSet& WeightedDataSet::updateWeights(const Eigen::VectorXd& weights)
 {
   this->weights = weights;
   resample();
+  return *this;
 }
 
 int WeightedDataSet::samples()

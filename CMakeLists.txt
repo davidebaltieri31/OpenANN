@@ -101,7 +101,7 @@ endif()
 set(OPENANN_COMPILER_FLAGS "${OPENANN_COMPILER_FLAGS} ${OPENANN_OPTIMIZATION_FLAGS}")
 add_subdirectory(lib)
 
-include_directories(. ${EIGEN3_INCLUDE_DIRS} lib/CMA-ESpp lib/ALGLIB test/lib/CPP-Test)
+include_directories(. ${EIGEN3_INCLUDE_DIRS} lib/CMA-ESpp lib/ALGLIB)
 add_subdirectory(src)
 option(EXCLUDE_TESTS_FROM_ALL "Exclude examples, benchmarks and test suite from standard target." ON)
 if(EXCLUDE_TESTS_FROM_ALL)
