@@ -17,6 +17,7 @@ Minimum Requirements
 
 * CMake 2.8 or higher
 * Eigen 3 library
+
 Installation
 ------------
 
