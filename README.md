@@ -5,8 +5,6 @@ Forked and modified to run on Windows with VS
 
 [API documentation](http://openann.github.io/OpenANN-apidoc/)
 
-[![Build Status](https://travis-ci.org/OpenANN/OpenANN.png?branch=master)](https://travis-ci.org/OpenANN/OpenANN)
-
 License
 -------
 
